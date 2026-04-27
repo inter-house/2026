@@ -5,12 +5,10 @@ Built using Html, Css and Javascript and Firebase DB
 
 ---
 
-## ✨ Features
+## 🛠️ Features
 
-- ⚽ **Futsal & Handball Support**
-- 📊 **Live Score Updates**
-- 🏆 **Automatic Standings Table**
-- 🎯 **Player Goal Tracking**
-- 📅 **Match Results Display**
-- 📱 **Responsive Design (Mobile + Desktop)**
-- 🎨 **Modern UI with Animated Interface** _(ongoing improvements)_
+- **Futsal & Handball Support**
+- **Live Score Updates**
+- **Standings Table**
+- **Player Goal Tracking**
+- **Match Results Display**

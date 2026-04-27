@@ -7,7 +7,6 @@ Built using Html, Css and Javascript and Firebase DB
 
 ## 🛠️ Features
 
-- **Futsal & Handball Support**
 - **Live Score Updates**
 - **Standings Table**
 - **Player Goal Tracking**

@@ -1360,7 +1360,7 @@
         players.sort((a,b) => (goalTally[b.name]||0)-(goalTally[a.name]||0));
         const el = document.getElementById("td-players");
         if (!players.length) { el.innerHTML = `<div class="empty"><div class="empty-i">👥</div>No players added yet</div>`; return; }
-        const grads = { Iskandhar:"linear-gradient(135deg,#1a3a5c,#5B9BF8)", Kalaafaanu:"linear-gradient(135deg,#0d3320,#22D48A)", Huravee:"linear-gradient(135deg,#4a1010,#F76060)" };
+        const grads = { Iskandhar:"linear-gradient(135deg,#0d3320,#22D48A)", Kalaafaanu:"linear-gradient(135deg,#1a3a5c,#5B9BF8)", Huravee:"linear-gradient(135deg,#4a1010,#F76060)" };
         el.innerHTML = `<div class="player-cards-grid">${players.map(p => {
           const g=goalTally[p.name]||0, s=shotTally[p.name]||0;
           const initials = p.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();

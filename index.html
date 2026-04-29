@@ -1432,7 +1432,7 @@
         const playersObj = allPlayers?.[house]?.futsal || {};
         const players = Object.entries(playersObj).map(([k,v]) => ({...v, key:k}));
         if (!players.length) { el.innerHTML = '<div style="font-size:12px;color:var(--dim);padding:6px 0">No players yet</div>'; return; }
-        const grads = { iskandhar:"linear-gradient(135deg,#1a3a5c,#5B9BF8)", kalaafaanu:"linear-gradient(135deg,#0d3320,#22D48A)", huravee:"linear-gradient(135deg,#4a1010,#F76060)" };
+        const grads = { iskandhar:"linear-gradient(135deg,#0d3320,#22D48A)", kalaafaanu:"linear-gradient(135deg,#1a3a5c,#5B9BF8)", huravee:"linear-gradient(135deg,#4a1010,#F76060)" };
         const grad = grads[house]||"var(--card3)";
         el.innerHTML = players.map(p => {
           const initials = p.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();

@@ -678,7 +678,7 @@
       .stand-head,
       .stand-row {
         display: grid;
-        grid-template-columns: 28px 1fr 36px 36px 36px 36px 46px;
+        grid-template-columns: 28px 1fr 34px 34px 34px 34px 44px 46px;
         padding: 10px 12px;
         align-items: center;
       }
@@ -1567,20 +1567,31 @@
 
         .stand-head,
         .stand-row {
-          grid-template-columns: 24px 1fr 30px 44px;
-          padding: 9px 10px;
+          grid-template-columns: 22px 1fr 28px 28px 28px 28px 36px 38px;
+          padding: 8px 8px;
         }
         .col-w,
         .col-d,
         .col-l,
         .col-gd {
-          display: none;
+          display: block;
         }
         .s-name {
-          font-size: 12px;
+          font-size: 11px;
+        }
+        .s-cell {
+          font-size: 10px;
         }
         .s-pts {
-          font-size: 18px;
+          font-size: 17px;
+        }
+        .s-logo {
+          width: 18px;
+          height: 18px;
+        }
+        .s-bar {
+          width: 2px;
+          height: 22px;
         }
 
         /* Team detail */
@@ -2493,13 +2504,13 @@
       function standTableHTML() {
         const data = calcStand();
         return `<div class="stand-wrap">
-          <div class="stand-head"><div>#</div><div>Team</div><div style="text-align:center">P</div><div style="text-align:center" class="col-w">W</div><div style="text-align:center" class="col-d">D</div><div style="text-align:center" class="col-l">L</div><div style="text-align:center">PTS</div></div>
+          <div class="stand-head"><div>#</div><div>Team</div><div style="text-align:center">P</div><div style="text-align:center" class="col-w">W</div><div style="text-align:center" class="col-d">D</div><div style="text-align:center" class="col-l">L</div><div style="text-align:center" class="col-gd">GD</div><div style="text-align:center">PTS</div></div>
           ${data
             .map(
               (r, i) => `<div class="stand-row" onclick="openTeam('${r.name}')">
             <div class="s-rk ${i === 0 ? "g" : ""}">${i + 1}</div>
             <div class="s-team-cell"><div class="s-bar ${CLS[r.name]}"></div><img src="${LOGOS[r.name] || ""}" class="s-logo" alt="${r.name}"/><div class="s-name">${r.name}</div></div>
-            <div class="s-cell">${r.p}</div><div class="s-cell col-w">${r.w}</div><div class="s-cell col-d">${r.d}</div><div class="s-cell col-l">${r.l}</div><div class="s-pts">${r.pts}</div>
+            <div class="s-cell">${r.p}</div><div class="s-cell col-w">${r.w}</div><div class="s-cell col-d">${r.d}</div><div class="s-cell col-l">${r.l}</div><div class="s-cell col-gd" style="${r.gd>0?'color:var(--isk)':r.gd<0?'color:var(--hur)':''}">${r.gd>0?'+'+r.gd:r.gd}</div><div class="s-pts">${r.pts}</div>
           </div>`,
             )
             .join("")}
@@ -2977,4 +2988,5 @@
       renderHome();
     </script>
   </body>
+  
 </html>

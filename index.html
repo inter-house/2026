@@ -354,6 +354,51 @@
         color: var(--gold);
       }
 
+      /* ══ MOBILE TOP BAR ══ */
+      .mobile-topbar {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: rgba(7,7,15,0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--b1);
+        position: sticky;
+        top: 0;
+        z-index: 99;
+      }
+      .mobile-topbar img {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+      .mobile-topbar-text {
+        font-family: 'Teko', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        line-height: 1.1;
+        flex: 1;
+        min-width: 0;
+      }
+      .mobile-topbar-text small {
+        display: block;
+        font-family: 'Outfit', sans-serif;
+        font-size: 9px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        color: var(--dim);
+        text-transform: uppercase;
+      }
+      @media (max-width: 640px) {
+        .mobile-topbar { display: flex; }
+        nav#main-nav { display: none; }
+      }
+
       /* ══ HERO STAT GRID ══ */
       .hero-stats-grid {
         display: grid;
@@ -678,7 +723,7 @@
       .stand-head,
       .stand-row {
         display: grid;
-        grid-template-columns: 28px 1fr 34px 34px 34px 34px 44px 46px;
+        grid-template-columns: 28px 1fr 36px 36px 36px 36px 46px;
         padding: 10px 12px;
         align-items: center;
       }
@@ -1567,31 +1612,20 @@
 
         .stand-head,
         .stand-row {
-          grid-template-columns: 22px 1fr 28px 28px 28px 28px 36px 38px;
-          padding: 8px 8px;
+          grid-template-columns: 24px 1fr 30px 44px;
+          padding: 9px 10px;
         }
         .col-w,
         .col-d,
         .col-l,
         .col-gd {
-          display: block;
+          display: none;
         }
         .s-name {
-          font-size: 11px;
-        }
-        .s-cell {
-          font-size: 10px;
+          font-size: 12px;
         }
         .s-pts {
-          font-size: 17px;
-        }
-        .s-logo {
-          width: 18px;
-          height: 18px;
-        }
-        .s-bar {
-          width: 2px;
-          height: 22px;
+          font-size: 18px;
         }
 
         /* Team detail */
@@ -1679,6 +1713,16 @@
 
     <div id="app">
       <div id="toasts"></div>
+
+      <!-- ══ MOBILE TOP BAR ══ -->
+      <div class="mobile-topbar">
+        <img src="https://i.ibb.co/LzFYj4B7/image-6.png" alt="Maaungoodhoo School"/>
+        <div class="mobile-topbar-text">
+          Maaungoodhoo School
+          <small>Inter-House Tournament 2026</small>
+        </div>
+        <div class="nav-admin" id="admin-btn-mobile" onclick="handleAdmin()" title="Admin" style="margin-left:auto;flex-shrink:0">⚙</div>
+      </div>
 
       <!-- ══ TOP NAV (desktop) ══ -->
       <nav id="main-nav">
@@ -1783,6 +1827,9 @@
               <div id="home-live"></div>
             </div>
 
+            <div id="home-champion-wrap" style="display:none"></div>
+
+            <div id="home-upcoming-wrap">
             <div class="sec-head">
               <div>
                 <div class="sec-eyebrow">Schedule</div>
@@ -1793,6 +1840,7 @@
               </button>
             </div>
             <div id="home-upcoming"></div>
+            </div>
 
             <div class="divider" style="margin-top: 24px"></div>
 
@@ -1971,6 +2019,10 @@
                 <label class="fl">Date &amp; Time (optional)</label>
                 <input type="datetime-local" class="fc" id="a-dt" />
               </div>
+              <label class="og-toggle" id="final-label" style="margin-bottom:14px">
+                <input type="checkbox" id="a-isfinal"/>
+                Mark as Final match
+              </label>
               <button class="btn btn-gold btn-f" onclick="adminAdd()">
                 Add Match
               </button>
@@ -2340,8 +2392,10 @@
         const hp = await hashPassword(p)
         if (hp === ADMIN_HASH) {
           isAdmin = true;
-          document.getElementById("admin-btn").style.cssText +=
-            "color:var(--hur);border-color:rgba(247,96,96,.4)";
+          const style = "color:var(--hur);border-color:rgba(247,96,96,.4)";
+          document.getElementById("admin-btn").style.cssText += style;
+          const mb = document.getElementById("admin-btn-mobile");
+          if (mb) mb.style.cssText += style;
           toast("Admin mode activated", "success");
           showPage("admin");
         } else if (p !== null) toast("Wrong password", "error");
@@ -2379,14 +2433,46 @@
         } else {
           liveWrap.style.display = "none";
         }
-        const upcomingList = Object.entries(allMatches)
-          .map(([k, v]) => ({ ...v, key: k }))
-          .filter((m) => m.status === "upcoming")
-          .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-          .slice(0, 2);
-        document.getElementById("home-upcoming").innerHTML = upcomingList.length
-          ? upcomingList.map((m) => matchHTML(m, false)).join("")
-          : '<div class="empty"><div class="empty-i">📅</div>No upcoming matches scheduled</div>';
+        // Check for grand final result
+        const finalMatch = Object.values(allMatches).find(m => m.isFinal);
+        const upcomingWrap = document.getElementById("home-upcoming-wrap");
+        const championWrap = document.getElementById("home-champion-wrap");
+
+        if (finalMatch && finalMatch.status === "ended") {
+          // Show champion banner instead of upcoming
+          if (upcomingWrap) upcomingWrap.style.display = "none";
+          if (championWrap) {
+            const sh = parseInt(finalMatch.score_home) || 0;
+            const sa = parseInt(finalMatch.score_away) || 0;
+            const champ = sh > sa ? finalMatch.home : sa > sh ? finalMatch.away : null;
+            const cls = champ ? (CLS[champ] || "isk") : "gold";
+            championWrap.style.display = "";
+            championWrap.innerHTML = `
+              <div style="text-align:center;padding:28px 16px 24px;background:var(--card);border:1px solid rgba(255,209,102,0.3);border-radius:var(--r2);position:relative;overflow:hidden;margin-bottom:24px">
+                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,209,102,0.10),transparent 65%);pointer-events:none"></div>
+                <div style="font-size:42px;margin-bottom:8px">🏆</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Tournament Champion</div>
+                ${champ
+                  ? `<img src="${LOGOS[champ]||''}" style="width:64px;height:64px;object-fit:contain;margin:0 auto 10px;display:block;filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5))"/>
+                     <div style="font-family:'Teko',sans-serif;font-size:38px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--${cls})">${champ}</div>
+                     <div style="font-size:12px;color:var(--dim);margin-top:4px">Final Score · ${finalMatch.home} <strong style="color:var(--text)">${sh}–${sa}</strong> ${finalMatch.away}</div>`
+                  : `<div style="font-family:'Teko',sans-serif;font-size:28px;color:var(--gold)">It's a Draw!</div>`
+                }
+              </div>`;
+          }
+        } else {
+          // Show upcoming section normally
+          if (upcomingWrap) upcomingWrap.style.display = "";
+          if (championWrap) championWrap.style.display = "none";
+          const upcomingList = Object.entries(allMatches)
+            .map(([k, v]) => ({ ...v, key: k }))
+            .filter((m) => m.status === "upcoming")
+            .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+            .slice(0, 2);
+          document.getElementById("home-upcoming").innerHTML = upcomingList.length
+            ? upcomingList.map((m) => matchHTML(m, false)).join("")
+            : '<div class="empty"><div class="empty-i">📅</div>No upcoming matches</div>';
+        }
         const top3 = calcScorers().slice(0, 3);
         document.getElementById("home-scorers").innerHTML = top3.length
           ? top3.map((s, i) => scorerHTML(s, i)).join("")
@@ -2444,7 +2530,11 @@
         const dtStr = m.datetime
           ? `<span style="font-size:9px;color:var(--dim);margin-left:6px;font-family:'JetBrains Mono',monospace">${new Date(m.datetime).toLocaleDateString("en-MV", { month: "short", day: "numeric" })}</span>`
           : "";
+        const finalBanner = m.isFinal
+          ? `<div style="text-align:center;padding:5px 0 2px;font-family:'Teko',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(90deg,var(--gold),#ffb700,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏆 FINAL MATCH 🏆</div>`
+          : "";
         return `<div class="mc"><div class="mc-inner"><div class="mc-accent"></div><div class="mc-body">
+          ${finalBanner}
           <div class="mc-top"><span class="mc-sport">⚽ Futsal${dtStr}</span><span class="mc-status ${sc}">${sl}</span></div>
           <div class="mc-teams">
             <div class="mc-team"><img src="${LOGOS[m.home] || ""}" class="mc-logo" alt="${m.home}"/><div class="mc-tname">${m.home || "?"}</div></div>
@@ -2504,13 +2594,13 @@
       function standTableHTML() {
         const data = calcStand();
         return `<div class="stand-wrap">
-          <div class="stand-head"><div>#</div><div>Team</div><div style="text-align:center">P</div><div style="text-align:center" class="col-w">W</div><div style="text-align:center" class="col-d">D</div><div style="text-align:center" class="col-l">L</div><div style="text-align:center" class="col-gd">GD</div><div style="text-align:center">PTS</div></div>
+          <div class="stand-head"><div>#</div><div>Team</div><div style="text-align:center">P</div><div style="text-align:center" class="col-w">W</div><div style="text-align:center" class="col-d">D</div><div style="text-align:center" class="col-l">L</div><div style="text-align:center">PTS</div></div>
           ${data
             .map(
               (r, i) => `<div class="stand-row" onclick="openTeam('${r.name}')">
             <div class="s-rk ${i === 0 ? "g" : ""}">${i + 1}</div>
             <div class="s-team-cell"><div class="s-bar ${CLS[r.name]}"></div><img src="${LOGOS[r.name] || ""}" class="s-logo" alt="${r.name}"/><div class="s-name">${r.name}</div></div>
-            <div class="s-cell">${r.p}</div><div class="s-cell col-w">${r.w}</div><div class="s-cell col-d">${r.d}</div><div class="s-cell col-l">${r.l}</div><div class="s-cell col-gd" style="${r.gd>0?'color:var(--isk)':r.gd<0?'color:var(--hur)':''}">${r.gd>0?'+'+r.gd:r.gd}</div><div class="s-pts">${r.pts}</div>
+            <div class="s-cell">${r.p}</div><div class="s-cell col-w">${r.w}</div><div class="s-cell col-d">${r.d}</div><div class="s-cell col-l">${r.l}</div><div class="s-pts">${r.pts}</div>
           </div>`,
             )
             .join("")}
@@ -2679,6 +2769,7 @@
         const home = document.getElementById("a-home").value;
         const away = document.getElementById("a-away").value;
         const dt = document.getElementById("a-dt").value;
+        const isFinal = document.getElementById("a-isfinal").checked;
         if (home === away)
           return toast("Home and away cannot be the same!", "error");
         db.ref("matches")
@@ -2692,10 +2783,12 @@
             goals: [],
             createdAt: Date.now(),
             datetime: dt || null,
+            isFinal: isFinal || false,
           })
           .then(() => {
             toast("Match added!", "success");
             document.getElementById("a-dt").value = "";
+            document.getElementById("a-isfinal").checked = false;
           })
           .catch((e) => toast(e.message, "error"));
       }
@@ -2988,5 +3081,4 @@
       renderHome();
     </script>
   </body>
-  
 </html>
